@@ -59,11 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
     modeSwitch.addEventListener('change', () => {
         if (modeSwitch.checked) {
-            toneMode = 'color';
-            switchLabel.textContent = 'Tone by colour';
-        } else {
             toneMode = 'coordinate';
             switchLabel.textContent = 'Tone by X/Y';
+        } else {
+            toneMode = 'color';
+            switchLabel.textContent = 'Tone by colour';
         }
     });
 
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!oscillator) {
             await startAudio();
             if (Tone.context.state !== 'running') return;
-             if (!oscillator) {
+            if (!oscillator) {
                 oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 }).toDestination();
                 oscillator.start();
             }
