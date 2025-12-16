@@ -1,13 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const img = document.getElementById('toneImage');
-    if (!img) {
-        console.error('Initialization failed: Could not find image element.');
+    const modeSwitch = document.getElementById('modeSwitch');
+    const switchLabel = document.querySelector('.switch-label');
+    const imageContainer = document.querySelector('.image-container');
+
+    if (!modeSwitch || !switchLabel || !imageContainer) {
+        console.error('Initialization failed: Could not find all required UI elements.');
         return;
     }
 
+    // Create a canvas that will be used for interaction and pixel reading
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    let canvasReady = false;
+
+    // Create a container for the canvas to help with centering
+    const canvasContainer = document.createElement('div');
+    canvasContainer.classList.add('canvas-container');
+    imageContainer.appendChild(canvasContainer);
+
+
+    // Create an image element programmatically to set crossOrigin attribute
+    const img = new Image();
+    img.crossOrigin = "Anonymous"; // This is crucial to prevent canvas tainting
+
+    img.onload = () => {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvasContainer.appendChild(canvas); // Add canvas to the new container
+        canvasReady = true;
+        console.log("Canvas is ready with the image.");
+    };
+
+    img.onerror = () => {
+        console.error("Failed to load image. Check path and permissions.");
+    };
+
+    // Set the src AFTER setting onload and crossOrigin
+    img.src = 'images/cosmic_tarantula.png';
+
+
     const scale = Tonal.Scale.get('C major').notes;
     let oscillator = null;
+    let toneMode = 'coordinate'; // 'coordinate' or 'color'
 
+    // --- Audio Context Handling ---
     const startAudio = async () => {
         if (Tone.context.state !== 'running') {
             try {
@@ -19,65 +56,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    img.addEventListener('mouseenter', async () => {
-        await startAudio();
-
-        if (Tone.context.state !== 'running') {
-            console.warn('AudioContext not running. Hover might not have been a strong enough user gesture.');
-            return;
+    // --- Event Listeners ---
+    modeSwitch.addEventListener('change', () => {
+        if (modeSwitch.checked) {
+            toneMode = 'color';
+            switchLabel.textContent = 'Tone by colour';
+        } else {
+            toneMode = 'coordinate';
+            switchLabel.textContent = 'Tone by X/Y';
         }
+    });
+
+    canvas.addEventListener('mouseenter', async () => {
+        await startAudio();
+        if (Tone.context.state !== 'running') return;
 
         if (!oscillator) {
-            oscillator = new Tone.Oscillator({
-                type: 'sine',
-                frequency: 440
-            }).toDestination();
+            oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 }).toDestination();
             oscillator.start();
         }
     });
 
-    img.addEventListener('mousemove', async (e) => {
-        await startAudio();
+    canvas.addEventListener('mousemove', async (e) => {
+        if (!canvasReady) return; // Don't do anything if the canvas isn't ready
 
         if (!oscillator) {
-            // If mouseenter didn't create it (e.g., page loaded with cursor already over image)
-            if (Tone.context.state === 'running') {
-                oscillator = new Tone.Oscillator({
-                    type: 'sine',
-                    frequency: 440
-                }).toDestination();
+            await startAudio();
+            if (Tone.context.state !== 'running') return;
+             if (!oscillator) {
+                oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 }).toDestination();
                 oscillator.start();
-            } else {
-                return; // Audio not ready, do nothing
             }
         }
 
-        const rect = img.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor(e.clientX - rect.left);
+        const y = Math.floor(e.clientY - rect.top);
 
-        const imgWidth = rect.width;
-        const imgHeight = rect.height;
+        let freq;
 
-        const noteIndex = Math.floor((x / imgWidth) * scale.length);
-        const note = scale[noteIndex % scale.length];
+        if (toneMode === 'coordinate') {
+            const noteIndex = Math.floor((x / canvas.width) * scale.length);
+            const note = scale[noteIndex % scale.length];
+            const octave = Math.round(6 - (y / canvas.height) * 4);
+            const newNote = `${note}${octave}`;
+            freq = Tonal.Note.freq(newNote);
+        } else { // 'color' mode
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            freq = colorToFrequency(pixel[0], pixel[1], pixel[2]);
+        }
 
-        const minOctave = 2;
-        const maxOctave = 6;
-        const octave = Math.round(maxOctave - (y / imgHeight) * (maxOctave - minOctave));
-        const newNote = `${note}${octave}`;
-
-        const freq = Tonal.Note.freq(newNote);
-        if (freq) {
+        if (freq && oscillator) {
             oscillator.frequency.rampTo(freq, 0.05);
         }
     });
 
-    img.addEventListener('mouseleave', () => {
+    canvas.addEventListener('mouseleave', () => {
         if (oscillator) {
             oscillator.stop();
             oscillator.dispose();
             oscillator = null;
         }
     });
+
+    // --- Helper Functions ---
+    function colorToFrequency(r, g, b) {
+        const brightness = (r + g + b) / 3;
+        const minFreq = 100;
+        const maxFreq = 1000;
+        return (brightness / 255) * (maxFreq - minFreq) + minFreq;
+    }
 });

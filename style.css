@@ -10,20 +10,125 @@ body {
     color: #333;
 }
 
-h1 {
+.header-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; 
+    width: 90vw;
+    max-width: 800px;
     margin-bottom: 20px;
+}
+
+h1 {
+    margin: 0; 
+    font-size: 1.5em;
 }
 
 .image-container {
     border: 2px solid #333;
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-    overflow: hidden; /* Ensures no content leaks outside bordered area */
+    overflow: hidden; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 800px; 
+    max-height: 600px;
+    width: 90vw; 
+    height: auto; 
 }
 
-#toneImage {
-    display: block; /* Remove extra space below image */
-    max-width: 800px; /* Set a maximum width */
-    margin: 0 auto; /* Center the image horizontally */
-    height: auto;
-    cursor: crosshair;
+.canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; 
+    height: 100%; 
+}
+
+canvas {
+    display: block;
+    max-width: 100%; 
+    max-height: 100%; 
+    width: auto; 
+    height: auto; 
+    cursor: crosshair; 
+}
+
+.controls-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    gap: 15px;
+}
+
+.switch {
+    --secondary-container: #415863;
+    --primary: #67c0ec;
+    font-size: 17px;
+    position: relative;
+    display: inline-block;
+    width: 3.7em;
+    height: 1.8em;
+}
+
+.switch .input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #071019;
+    transition: 0.2s;
+    border-radius: 30px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 1.4em;
+    width: 1.4em;
+    border-radius: 20px;
+    left: 0.2em;
+    bottom: 0.2em;
+    background-color: #a09e9e;
+    transition: 0.4s;
+}
+
+.input:checked + .slider::before {
+    background-color: var(--primary);
+}
+
+.input:checked + .slider {
+    background-color: var(--secondary-container);
+}
+
+.input:focus + .slider {
+    box-shadow: 0 0 1px var(--secondary-container);
+}
+
+.input:checked + .slider:before {
+    transform: translateX(1.9em);
+}
+
+.switch-label {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 16px;
+    color: #333;
+    min-width: 120px;
+    text-align: left;
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,10 +12,21 @@
     <script src="https://cdn.jsdelivr.net/npm/tonal/browser/tonal.min.js"></script>
     <script src="script.js" defer></script>
 </head>
+
 <body>
-    <h1>Hover over the image to play tones!</h1>
+    <div class="header-row">
+        <h1>Hover over the image to play tones</h1>
+        <div class="controls-container">
+            <label class="switch">
+                <input type="checkbox" id="modeSwitch" class="input">
+                <span class="slider"></span>
+            </label>
+            <span class="switch-label">Tone by X/Y</span>
+        </div>
+    </div>
     <div class="image-container">
-        <img id="toneImage" src="images/cosmic_tarantula.png" alt="Cosmic Tarantula Nebula">
+        <!-- The image and canvas will be loaded here by script.js -->
     </div>
 </body>
+
 </html>
