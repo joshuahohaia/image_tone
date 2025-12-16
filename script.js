@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scale = Tonal.Scale.get('C major').notes;
     let oscillator = null;
-    let toneMode = 'coordinate'; // 'coordinate' or 'color'
+    let toneMode = 'color'; // 'color' or 'coordinate'
 
     // --- Audio Context Handling ---
     const startAudio = async () => {
