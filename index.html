@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Tone Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <!-- Tone.js library for audio synthesis -->
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
@@ -15,14 +18,13 @@
 
 <body>
     <div class="header-row">
-        <h1>Hover the image to play tones</h1>
+        <h1>Image Tone Player</h1>
         <div class="controls-container">
-            <button id="randomImageBtn" class="control-btn">Random Image</button>
-            <label class="switch">
-                <input type="checkbox" id="modeSwitch" class="input">
-                <span class="slider"></span>
-            </label>
-            <span class="switch-label">Tone by colour</span>
+            <button id="randomImageBtn" class="control-btn">New Image</button>
+            <div class="mode-selector">
+                <button class="mode-btn active" id="btnColorMode" data-mode="color">Color</button>
+                <button class="mode-btn" id="btnCoordMode" data-mode="coordinate">X/Y</button>
+            </div>
         </div>
     </div>
     <div class="image-container">

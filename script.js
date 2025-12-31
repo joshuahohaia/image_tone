@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const modeSwitch = document.getElementById('modeSwitch');
-    const switchLabel = document.querySelector('.switch-label');
     const imageContainer = document.querySelector('.image-container');
     const hexDisplay = document.getElementById('hexValue');
     const rgbDisplay = document.getElementById('rgbValue');
     const coordsDisplay = document.getElementById('coordsValue');
     const colorSwatch = document.getElementById('colorSwatch');
     const randomImageBtn = document.getElementById('randomImageBtn');
+    const btnColorMode = document.getElementById('btnColorMode');
+    const btnCoordMode = document.getElementById('btnCoordMode');
 
-    if (!modeSwitch || !switchLabel || !imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn) {
+    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !btnColorMode || !btnCoordMode) {
         console.error('Initialization failed: Could not find all required UI elements.');
         return;
     }
@@ -78,14 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Event Listeners ---
-    modeSwitch.addEventListener('change', () => {
-        if (modeSwitch.checked) {
-            toneMode = 'coordinate';
-            switchLabel.textContent = 'Tone by X/Y';
-        } else {
-            toneMode = 'color';
-            switchLabel.textContent = 'Tone by colour';
-        }
+    btnColorMode.addEventListener('click', () => {
+        toneMode = 'color';
+        btnColorMode.classList.add('active');
+        btnCoordMode.classList.remove('active');
+    });
+
+    btnCoordMode.addEventListener('click', () => {
+        toneMode = 'coordinate';
+        btnCoordMode.classList.add('active');
+        btnColorMode.classList.remove('active');
     });
 
     canvas.addEventListener('mouseenter', async () => {
