@@ -137,6 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentScale = Tonal.Scale.get(randomScaleName).notes;
         }
+
+        // Randomize Echo/Delay
+        const randomDelay = (Math.random() * 0.8).toFixed(1);
+        delaySlider.value = randomDelay;
+        feedbackDelay.wet.value = parseFloat(randomDelay);
+
+        // Randomize Reverb
+        const randomReverb = (Math.random() * 8).toFixed(1); // 0 to 8 is a good musical range
+        reverbSlider.value = randomReverb;
+        reverb.decay = parseFloat(randomReverb);
+        reverb.generate();
         
         // Note: Volume is explicitly excluded from randomization
     }
