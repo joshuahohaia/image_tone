@@ -47,11 +47,43 @@ body {
     z-index: 10;
 }
 
-h1 {
+h1.glitch-title {
     margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    color: var(--foreground);
+    position: relative;
+    text-shadow: 0 0 10px rgba(121, 196, 236, 0.2); /* Subtle glow based on primary blue */
+    animation: title-flicker 4s linear infinite;
+    text-transform: uppercase;
+}
+
+h1.glitch-title::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+    color: var(--primary);
+    z-index: -1;
+    filter: blur(2px);
+    animation: title-ghost 4s ease-out infinite;
+}
+
+@keyframes title-flicker {
+    0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 1; }
+    20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.8; }
+}
+
+@keyframes title-ghost {
+    0%, 100% { transform: translate(0); }
+    10%, 15% { transform: translate(-2px, 1px); }
+    11% { transform: translate(2px, -1px); }
+    12% { transform: translate(0); }
 }
 
 /* --- Controls --- */
