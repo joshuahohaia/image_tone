@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- UI Elements ---
     const imageContainer = document.querySelector('.image-container');
-    const loadingText = document.querySelector('.loading-text'); // Moved to top
+    const loadingText = document.querySelector('.loading-text');
     const hexDisplay = document.getElementById('hexValue');
     const rgbDisplay = document.getElementById('rgbValue');
     const coordsDisplay = document.getElementById('coordsValue');
@@ -13,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingOverlay = document.getElementById('loadingOverlay');
     const toneOverlay = document.getElementById('toneOverlay');
     const visualizerCanvas = document.getElementById('visualizer');
-    
-    // Settings Elements
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsPanel = document.getElementById('settingsPanel');
     const volSlider = document.getElementById('volSlider');
@@ -28,19 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // --- Audio Effects (Initialize Early) ---
     const feedbackDelay = new Tone.FeedbackDelay("8n", 0.5).toDestination();
-    feedbackDelay.wet.value = 0; // Start with no delay
+    feedbackDelay.wet.value = 0;
 
     const reverb = new Tone.Reverb({
         decay: 1.5,
         preDelay: 0.01,
         wet: 0.5
     }).toDestination();
-    // Reverb must be generated/initialised
     reverb.generate();
 
-    // --- Loading Text Logic ---
     let loadingInterval;
     const loadingPhrases = [
         "INITIALISING SEQUENCE...",
@@ -52,28 +46,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startLoadingText() {
         let index = 0;
-        // Set initial text
         updateText(loadingPhrases[0]);
-        
         loadingInterval = setInterval(() => {
             index = (index + 1) % loadingPhrases.length;
             updateText(loadingPhrases[index]);
-        }, 800); // Change every 800ms
+        }, 800);
     }
 
     function stopLoadingText() {
         clearInterval(loadingInterval);
-        updateText("INITIALISING SEQUENCE..."); // Reset to default
+        updateText("INITIALISING SEQUENCE...");
     }
 
     function updateText(text) {
         if (loadingText) {
             loadingText.textContent = text;
-            loadingText.setAttribute('data-text', text); // For the glitch CSS effect
+            loadingText.setAttribute('data-text', text);
         }
     }
 
-    // --- Random Tone Logic ---
     async function playRandomNote() {
         if (!canvasReady) return;
         await startAudio();
@@ -104,52 +95,42 @@ document.addEventListener('DOMContentLoaded', () => {
             
             synth.volume.value = currentVolume;
             synth.triggerAttackRelease(freq, "8n");
-            
-            // Dispose after playing to avoid memory leak
             setTimeout(() => synth.dispose(), 2000);
         }
     }
 
     async function playRandomSequence(useOverlay = true) {
-        if (useOverlay) toneOverlay.classList.remove('hidden'); // Show overlay to block interaction
-         // Play a short sequence
+        if (useOverlay) toneOverlay.classList.remove('hidden');
          for (let i = 0; i < 4; i++) {
             playRandomNote();
             await new Promise(r => setTimeout(r, 200));
         }
-        if (useOverlay) toneOverlay.classList.add('hidden'); // Hide overlay
+        if (useOverlay) toneOverlay.classList.add('hidden');
     }
 
     function randomiseSettings() {
-        // Randomise Waveform
         const waveforms = ['sine', 'triangle', 'square', 'sawtooth'];
         currentWaveform = waveforms[Math.floor(Math.random() * waveforms.length)];
-        waveSelect.value = currentWaveform; // Update UI
+        waveSelect.value = currentWaveform;
 
-        // Randomise Scale
         const scaleOptions = Array.from(scaleSelect.options).map(opt => opt.value);
         const randomScaleName = scaleOptions[Math.floor(Math.random() * scaleOptions.length)];
-        scaleSelect.value = randomScaleName; // Update UI
+        scaleSelect.value = randomScaleName;
         
-        // Update logic for scale
         if (randomScaleName === 'chromatic') {
             currentScale = Tonal.Scale.get('C chromatic').notes;
         } else {
             currentScale = Tonal.Scale.get(randomScaleName).notes;
         }
 
-        // Randomise Echo/Delay
         const randomDelay = (Math.random() * 0.8).toFixed(1);
         delaySlider.value = randomDelay;
         feedbackDelay.wet.value = parseFloat(randomDelay);
 
-        // Randomise Reverb
-        const randomReverb = (Math.random() * 8).toFixed(1); // 0 to 8 is a good musical range
+        const randomReverb = (Math.random() * 8).toFixed(1);
         reverbSlider.value = randomReverb;
         reverb.decay = parseFloat(randomReverb);
         reverb.generate();
-        
-        // Note: Volume is explicitly excluded from randomisation
     }
 
     randomToneBtn.addEventListener('click', () => {
@@ -157,18 +138,16 @@ document.addEventListener('DOMContentLoaded', () => {
         playRandomSequence(true);
     });
 
-    // --- Settings Logic ---
     let currentWaveform = 'sine';
-    let currentVolume = -10; // dB
+    let currentVolume = -10;
     let currentScale = Tonal.Scale.get('C major').notes;
 
     settingsBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent closing immediately if we click the button
+        e.stopPropagation();
         settingsPanel.classList.toggle('hidden');
         settingsBtn.classList.toggle('active');
     });
 
-    // Close settings when clicking outside
     document.addEventListener('click', (e) => {
         if (!settingsPanel.classList.contains('hidden') && !settingsPanel.contains(e.target) && e.target !== settingsBtn) {
             settingsPanel.classList.add('hidden');
@@ -182,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     reverbSlider.addEventListener('input', (e) => {
         reverb.decay = parseFloat(e.target.value);
-        // Re-generate impulse response when decay changes (needed for Tone.Reverb)
         reverb.generate(); 
     });
 
@@ -209,68 +187,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Visualizer Setup ---
     const visCtx = visualizerCanvas.getContext('2d');
-    const waveform = new Tone.Waveform(64); // Small buffer for fast drawing
+    const waveform = new Tone.Waveform(64);
     
     function drawVisualizer() {
         requestAnimationFrame(drawVisualizer);
-        
         const buffer = waveform.getValue();
         visCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        
         visCtx.beginPath();
         visCtx.lineJoin = 'round';
         visCtx.lineWidth = 2;
-        // Use the primary theme colour for the visualizer line
         const primaryColour = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
         visCtx.strokeStyle = primaryColour || '#ef4444'; 
         
         if (buffer.length > 0) {
             const sliceWidth = visualizerCanvas.width / buffer.length;
             let x = 0;
-            
             for (let i = 0; i < buffer.length; i++) {
                 const v = buffer[i]; 
-                // Map value (-1 to 1) to canvas height
                 const y = (v + 1) / 2 * visualizerCanvas.height;
-                
                 if (i === 0) {
                     visCtx.moveTo(x, y);
                 } else {
                     visCtx.lineTo(x, y);
                 }
-                
                 x += sliceWidth;
             }
         }
-        
         visCtx.stroke();
     }
-    // Start the loop
     drawVisualizer();
 
-
-    // Create a canvas that will be used for interaction and pixel reading
     const canvas = document.createElement('canvas');
     canvas.width = 2000;
     canvas.height = 1157;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     let canvasReady = false;
 
-    // Create a container for the canvas to help with centreing
     const canvasContainer = document.createElement('div');
     canvasContainer.classList.add('canvas-container');
     imageContainer.appendChild(canvasContainer);
 
-
-    // Create an image element programmatically to set crossOrigin attribute
     const img = new Image();
-    img.crossOrigin = "Anonymous"; // This is crucial to prevent canvas tainting
+    img.crossOrigin = "Anonymous";
     const colorThief = new ColorThief();
 
     img.onload = () => {
-        // Draw the image scaled to fit the fixed canvas size
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         
@@ -280,72 +242,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         canvasReady = true;
-        loadingOverlay.classList.add('hidden'); // Hide loading overlay
-        stopLoadingText(); // Stop text cycling
-        console.log("Canvas is ready with the image scaled to 2000x1157.");
+        loadingOverlay.classList.add('hidden');
+        stopLoadingText();
         
-        // Extract dominant colour and update button
         try {
-            // ColorThief needs the image to be fully loaded and CORS compliant
             if (img.complete) {
                 const dominantColour = colorThief.getColor(img);
-                console.log("Dominant Colour Extracted:", dominantColour);
                 const rgbString = `rgb(${dominantColour[0]}, ${dominantColour[1]}, ${dominantColour[2]})`;
                 randomImageBtn.style.backgroundColor = rgbString;
-                
-                // Calculate contrast for text colour (simple YIQ)
                 const yiq = ((dominantColour[0] * 299) + (dominantColour[1] * 587) + (dominantColour[2] * 114)) / 1000;
                 randomImageBtn.style.color = (yiq >= 128) ? '#000' : '#fff';
-            } else {
-                console.warn("Image not complete for ColorThief");
             }
-            
         } catch (e) {
-            console.warn("ColorThief failed (likely CORS on first load, or transparent image):", e);
+            console.warn("Colour extraction failed:", e);
         }
         
-        // Play welcome tones (no overlay needed)
         playRandomSequence(false);
     };
 
     img.onerror = () => {
-        console.error("Failed to load image. Check path and permissions.");
-        loadingOverlay.classList.add('hidden'); // Hide on error too
+        loadingOverlay.classList.add('hidden');
         stopLoadingText();
         alert("Failed to load image. Please try again.");
     };
 
-    // Initial Image Load
     img.src = 'images/cosmic_tarantula.png';
 
-    // --- Random Image Logic ---
     randomImageBtn.addEventListener('click', () => {
         canvasReady = false;
-        loadingOverlay.classList.remove('hidden'); // Show loading overlay
-        startLoadingText(); // Start text cycling
+        loadingOverlay.classList.remove('hidden');
+        startLoadingText();
         const randomId = Math.floor(Math.random() * 1000);
-        // Request exactly 2000x1157 from Picsum
         img.src = `https://picsum.photos/2000/1157?random=${randomId}`;
     });
 
-
-
     let oscillator = null;
-    let toneMode = 'colour'; // 'colour' or 'coordinate'
+    let toneMode = 'colour';
 
-    // --- Audio Context Handling ---
     const startAudio = async () => {
         if (Tone.context.state !== 'running') {
             try {
                 await Tone.start();
-                console.log('AudioContext started on user gesture.');
             } catch (e) {
                 console.error('Could not start AudioContext:', e);
             }
         }
     };
 
-    // --- Event Listeners ---
     btnColourMode.addEventListener('click', () => {
         toneMode = 'colour';
         btnColourMode.classList.add('active');
@@ -366,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!oscillator) {
             oscillator = new Tone.Oscillator({ type: currentWaveform, frequency: 440, volume: currentVolume });
-            oscillator.connect(waveform); // Connect to visualizer
+            oscillator.connect(waveform);
             oscillator.connect(feedbackDelay);
             oscillator.connect(reverb);
             oscillator.start();
@@ -374,16 +317,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     canvas.addEventListener('mousemove', async (e) => {
-        if (!canvasReady) return; // Don't do anything if the canvas isn't ready
+        if (!canvasReady) return;
 
         if (!oscillator) {
             await startAudio();
             if (Tone.context.state !== 'running') return;
             if (!oscillator) {
                 oscillator = new Tone.Oscillator({ type: currentWaveform, frequency: 440, volume: currentVolume });
-                oscillator.connect(waveform); // Connect to visualizer
-                oscillator.connect(feedbackDelay); // Connect to delay
-                oscillator.connect(reverb); // Connect to reverb
+                oscillator.connect(waveform);
+                oscillator.connect(feedbackDelay);
+                oscillator.connect(reverb);
                 oscillator.start();
             }
         }
@@ -392,30 +335,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = Math.floor(e.clientX - rect.left);
         const y = Math.floor(e.clientY - rect.top);
 
-        // Update Coordinate Display
         coordsDisplay.textContent = `${x}, ${y}`;
 
-        // Get Pixel Data
         const pixel = ctx.getImageData(x, y, 1, 1).data;
         const r = pixel[0];
         const g = pixel[1];
         const b = pixel[2];
 
-        // Update Colour Displays
         rgbDisplay.textContent = `(${r}, ${g}, ${b})`;
         const hex = rgbToHex(r, g, b);
         hexDisplay.textContent = hex;
         colourSwatch.style.backgroundColor = hex;
 
         let freq;
-
         if (toneMode === 'coordinate') {
             const noteIndex = Math.floor((x / canvas.width) * currentScale.length);
             const note = currentScale[noteIndex % currentScale.length];
             const octave = Math.round(6 - (y / canvas.height) * 4);
             const newNote = `${note}${octave}`;
             freq = Tonal.Note.freq(newNote);
-        } else { // 'colour' mode
+        } else {
             freq = colourToFrequency(r, g, b);
         }
 
@@ -430,14 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
             oscillator.dispose();
             oscillator = null;
         }
-        // Reset Displays
         hexDisplay.textContent = '#------';
         rgbDisplay.textContent = '(---, ---, ---)';
         coordsDisplay.textContent = '---, ---';
-        colourSwatch.style.backgroundColor = ''; // Revert to CSS default (var(--muted))
+        colourSwatch.style.backgroundColor = '';
     });
 
-    // --- Helper Functions ---
     function rgbToHex(r, g, b) {
         return "#" + [r, g, b].map(x => {
             const hex = x.toString(16);

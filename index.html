@@ -9,11 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Tone.js library for audio synthesis -->
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
-    <!-- Tonal.js library for musical theory utilities -->
     <script src="https://cdn.jsdelivr.net/npm/tonal/browser/tonal.min.js"></script>
-    <!-- ColorThief for extracting dominant colours -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
     <script src="script.js" defer></script>
 </head>
@@ -71,13 +68,17 @@
     </div>
     <div class="image-container">
         <div id="loadingOverlay" class="loading-overlay hidden">
-            <div class="alien-spinner"></div>
-            <span>Loading Image...</span>
+            <div class="loader-content">
+                <div class="alien-core"></div>
+                <div class="alien-orbit orbit-1"></div>
+                <div class="alien-orbit orbit-2"></div>
+                <div class="alien-orbit orbit-3"></div>
+            </div>
+            <span class="loading-text" data-text="INITIALISING SEQUENCE...">INITIALISING SEQUENCE...</span>
         </div>
         <div id="toneOverlay" class="tone-overlay hidden">
             <div class="alien-spinner"></div>
         </div>
-        <!-- The image and canvas will be loaded here by script.js -->
     </div>
     <div class="info-panel">
         <div class="info-item">

@@ -35,7 +35,6 @@ body {
     padding: 0;
 }
 
-/* --- Header --- */
 .header-row {
     flex: 0 0 auto;
     display: flex;
@@ -55,7 +54,7 @@ h1.glitch-title {
     letter-spacing: 0.15em;
     color: var(--foreground);
     position: relative;
-    text-shadow: 0 0 10px rgba(121, 196, 236, 0.2); /* Subtle glow based on primary blue */
+    text-shadow: 0 0 10px rgba(121, 196, 236, 0.2);
     animation: title-flicker 4s linear infinite;
     text-transform: uppercase;
 }
@@ -86,12 +85,11 @@ h1.glitch-title::after {
     12% { transform: translate(0); }
 }
 
-/* --- Controls --- */
 .controls-container {
     display: flex;
     align-items: center;
     gap: calc(var(--spacing) * 4);
-    position: relative; /* For absolute positioning of settings panel */
+    position: relative;
 }
 
 .settings-wrapper {
@@ -112,6 +110,7 @@ h1.glitch-title::after {
     font-weight: 500;
     transition: all 0.2s;
     font-family: inherit;
+    line-height: 1.2;
 }
 
 #settingsBtn:hover, #settingsBtn.active {
@@ -125,16 +124,16 @@ h1.glitch-title::after {
     top: 120%;
     left: 50%;
     transform: translateX(-50%);
-    width: 240px; /* Slightly wider */
+    width: 240px;
     background-color: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: calc(var(--spacing) * 5); /* Increased padding */
+    padding: calc(var(--spacing) * 5);
     box-shadow: var(--shadow);
     z-index: 50;
     display: flex;
     flex-direction: column;
-    gap: calc(var(--spacing) * 5); /* Increased gap */
+    gap: calc(var(--spacing) * 5);
     max-height: 80vh;
     overflow-y: auto;
 }
@@ -205,7 +204,7 @@ h1.glitch-title::after {
     border: none;
     border-radius: var(--radius);
     cursor: pointer;
-    transition: opacity 0.2s, background-color 0.2s; /* Animate colour change */
+    transition: opacity 0.2s, background-color 0.2s;
     font-family: inherit;
     line-height: 1;
 }
@@ -219,7 +218,6 @@ h1.glitch-title::after {
     color: var(--secondary-foreground);
 }
 
-/* --- Main Image Area --- */
 .image-container {
     flex: 1;
     position: relative;
@@ -228,7 +226,6 @@ h1.glitch-title::after {
     align-items: center;
     overflow: hidden;
     background-color: var(--muted);
-    /* Using muted for canvas backdrop */
     padding: calc(var(--spacing) * 4);
 }
 
@@ -251,7 +248,6 @@ canvas {
     cursor: crosshair;
 }
 
-/* --- Footer (Info Panel) --- */
 .info-panel {
     flex: 0 0 auto;
     display: flex;
@@ -275,8 +271,8 @@ canvas {
     color: var(--muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    min-width: 35px; /* Use min-width instead of width */
-    margin-right: var(--spacing); /* Add explicit margin */
+    min-width: 35px;
+    margin-right: var(--spacing);
     flex-shrink: 0;
 }
 
@@ -320,134 +316,151 @@ canvas {
     background-color: var(--muted);
 }
 
-/* --- Loading State --- */
-
 .loading-overlay {
-
     position: absolute;
-
     top: 0;
-
     left: 0;
-
     width: 100%;
-
     height: 100%;
-
-    background-color: rgba(0, 0, 0, 0.3); /* Match tone overlay */
-
-    backdrop-filter: blur(2px) grayscale(0.8); /* Match tone overlay */
-
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px) grayscale(0.5);
     display: flex;
-
     flex-direction: column;
-
     justify-content: center;
-
     align-items: center;
-
-    gap: var(--spacing);
-
+    gap: calc(var(--spacing) * 6);
     z-index: 20;
-
-    color: #fff; /* White text for dark overlay */
-
-    font-weight: 500;
-
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-
+    overflow: hidden;
 }
-
-
 
 .loading-overlay.hidden {
-
     display: none;
-
 }
 
+.loader-content {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.alien-core {
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    box-shadow: 0 0 20px var(--accent), inset 0 0 10px rgba(255,255,255,0.5);
+    animation: morph 3s linear infinite alternate, pulse-core 2s ease-in-out infinite;
+    z-index: 2;
+}
 
-/* Old spinner removed, using .alien-spinner shared above */
+.alien-orbit {
+    position: absolute;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+}
 
+.orbit-1 {
+    width: 100%;
+    height: 100%;
+    border-top: 2px solid var(--primary);
+    animation: spin-orbit 2s linear infinite;
+}
 
+.orbit-2 {
+    width: 80%;
+    height: 80%;
+    border-right: 2px solid var(--secondary-foreground);
+    animation: spin-orbit 3s linear infinite reverse;
+}
 
-/* --- Tone Generation Overlay --- */
+.orbit-3 {
+    width: 120%;
+    height: 60%;
+    border: 1px dashed var(--muted-foreground);
+    animation: spin-3d 4s linear infinite;
+}
+
+.loading-text {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--foreground);
+    letter-spacing: 0.2em;
+    position: relative;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.loading-text::before {
+    content: attr(data-text);
+    position: absolute;
+    left: 2px;
+    text-shadow: -1px 0 var(--accent);
+    top: 0;
+    color: var(--foreground);
+    background: transparent;
+    overflow: hidden;
+    clip: rect(0, 900px, 0, 0);
+    animation: noise-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes morph {
+    0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+    100% { border-radius: 40% 60%; }
+}
+
+@keyframes pulse-core {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    100% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes spin-orbit {
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-3d {
+    0% { transform: rotate(0deg) rotateX(60deg) rotateY(0deg); }
+    100% { transform: rotate(360deg) rotateX(60deg) rotateY(360deg); }
+}
+
+@keyframes noise-anim-2 {
+    0% { clip: rect(12px, 9999px, 5px, 0); }
+    5% { clip: rect(28px, 9999px, 86px, 0); }
+    10% { clip: rect(6px, 9999px, 66px, 0); }
+    15% { clip: rect(78px, 9999px, 14px, 0); }
+    20% { clip: rect(32px, 9999px, 2px, 0); }
+    25% { clip: rect(4px, 9999px, 60px, 0); }
+    30% { clip: rect(0, 0, 0, 0); }
+    100% { clip: rect(0, 0, 0, 0); }
+}
 
 .tone-overlay {
-
     position: absolute;
-
     top: 0;
-
     left: 0;
-
     width: 100%;
-
     height: 100%;
-
-    background-color: rgba(0, 0, 0, 0.3);
-
-    backdrop-filter: blur(2px) grayscale(0.8);
-
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
-    z-index: 30; /* Above loading overlay */
-
+    z-index: 30;
     cursor: wait;
-
 }
-
-
 
 .tone-overlay.hidden {
-
     display: none;
-
 }
-
-
 
 .alien-spinner {
-
-    width: 60px;
-
-    height: 60px;
-
+    width: 50px;
+    height: 50px;
     background: var(--accent);
-
-    mask: radial-gradient(farthest-side,#0000 calc(100% - 13px),#000 0);
-
-    -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 13px),#000 0);
-
     border-radius: 50%;
-
-    animation: alien-pulse 0.4s infinite linear alternate, alien-rotate 1s infinite linear;
-
     box-shadow: 0 0 30px var(--accent);
-
-}
-
-
-
-@keyframes alien-pulse {
-
-    0% { transform: scale(0.9); opacity: 0.7; filter: hue-rotate(0deg); }
-
-    100% { transform: scale(1.1); opacity: 1; filter: hue-rotate(180deg); }
-
-}
-
-
-
-@keyframes alien-rotate {
-
-    0% { transform: rotate(0deg); }
-
-    100% { transform: rotate(360deg); }
-
+    animation: pulse-core 0.4s infinite alternate;
 }
