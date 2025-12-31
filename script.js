@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const hexDisplay = document.getElementById('hexValue');
     const rgbDisplay = document.getElementById('rgbValue');
     const coordsDisplay = document.getElementById('coordsValue');
-    const colorSwatch = document.getElementById('colorSwatch');
+    const colourSwatch = document.getElementById('colourSwatch');
     const randomImageBtn = document.getElementById('randomImageBtn');
     const randomToneBtn = document.getElementById('randomToneBtn');
-    const btnColorMode = document.getElementById('btnColorMode');
+    const btnColourMode = document.getElementById('btnColourMode');
     const btnCoordMode = document.getElementById('btnCoordMode');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const toneOverlay = document.getElementById('toneOverlay');
@@ -23,12 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const delaySlider = document.getElementById('delaySlider');
     const reverbSlider = document.getElementById('reverbSlider');
 
-    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !randomToneBtn || !btnColorMode || !btnCoordMode || !loadingOverlay || !toneOverlay || !visualizerCanvas || !settingsBtn || !settingsPanel || !volSlider || !waveSelect || !scaleSelect || !delaySlider || !reverbSlider) {
-        console.error('Initialization failed: Could not find all required UI elements.');
+    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colourSwatch || !randomImageBtn || !randomToneBtn || !btnColourMode || !btnCoordMode || !loadingOverlay || !toneOverlay || !visualizerCanvas || !settingsBtn || !settingsPanel || !volSlider || !waveSelect || !scaleSelect || !delaySlider || !reverbSlider || !loadingText) {
+        console.error('Initialisation failed: Could not find all required UI elements.');
         return;
     }
 
-    // --- Audio Effects ---
+    // --- Audio Effects (Initialize Early) ---
     const feedbackDelay = new Tone.FeedbackDelay("8n", 0.5).toDestination();
     feedbackDelay.wet.value = 0; // Start with no delay
 
@@ -37,14 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
         preDelay: 0.01,
         wet: 0.5
     }).toDestination();
-    // Reverb must be generated/initialized
+    // Reverb must be generated/initialised
     reverb.generate();
 
     // --- Loading Text Logic ---
     let loadingInterval;
     const loadingPhrases = [
-        "INITIALIZING SEQUENCE...",
-        "ANALYZING FREQUENCIES...",
+        "INITIALISING SEQUENCE...",
+        "ANALYSING FREQUENCIES...",
         "DECODING TRANSMISSION...",
         "EXTRACTING HARMONICS...",
         "CALIBRATING SENSORS..."
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stopLoadingText() {
         clearInterval(loadingInterval);
-        updateText("INITIALIZING SEQUENCE..."); // Reset to default
+        updateText("INITIALISING SEQUENCE..."); // Reset to default
     }
 
     function updateText(text) {
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             freq = Tonal.Note.freq(newNote);
         } else {
             const pixel = ctx.getImageData(x, y, 1, 1).data;
-            freq = colorToFrequency(pixel[0], pixel[1], pixel[2]);
+            freq = colourToFrequency(pixel[0], pixel[1], pixel[2]);
         }
 
         if (freq) {
@@ -120,13 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (useOverlay) toneOverlay.classList.add('hidden'); // Hide overlay
     }
 
-    function randomizeSettings() {
-        // Randomize Waveform
+    function randomiseSettings() {
+        // Randomise Waveform
         const waveforms = ['sine', 'triangle', 'square', 'sawtooth'];
         currentWaveform = waveforms[Math.floor(Math.random() * waveforms.length)];
         waveSelect.value = currentWaveform; // Update UI
 
-        // Randomize Scale
+        // Randomise Scale
         const scaleOptions = Array.from(scaleSelect.options).map(opt => opt.value);
         const randomScaleName = scaleOptions[Math.floor(Math.random() * scaleOptions.length)];
         scaleSelect.value = randomScaleName; // Update UI
@@ -138,22 +138,22 @@ document.addEventListener('DOMContentLoaded', () => {
             currentScale = Tonal.Scale.get(randomScaleName).notes;
         }
 
-        // Randomize Echo/Delay
+        // Randomise Echo/Delay
         const randomDelay = (Math.random() * 0.8).toFixed(1);
         delaySlider.value = randomDelay;
         feedbackDelay.wet.value = parseFloat(randomDelay);
 
-        // Randomize Reverb
+        // Randomise Reverb
         const randomReverb = (Math.random() * 8).toFixed(1); // 0 to 8 is a good musical range
         reverbSlider.value = randomReverb;
         reverb.decay = parseFloat(randomReverb);
         reverb.generate();
         
-        // Note: Volume is explicitly excluded from randomization
+        // Note: Volume is explicitly excluded from randomisation
     }
 
     randomToneBtn.addEventListener('click', () => {
-        randomizeSettings();
+        randomiseSettings();
         playRandomSequence(true);
     });
 
@@ -222,9 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
         visCtx.beginPath();
         visCtx.lineJoin = 'round';
         visCtx.lineWidth = 2;
-        // Use the primary theme color for the visualizer line
-        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-        visCtx.strokeStyle = primaryColor || '#ef4444'; 
+        // Use the primary theme colour for the visualizer line
+        const primaryColour = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        visCtx.strokeStyle = primaryColour || '#ef4444'; 
         
         if (buffer.length > 0) {
             const sliceWidth = visualizerCanvas.width / buffer.length;
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     let canvasReady = false;
 
-    // Create a container for the canvas to help with centering
+    // Create a container for the canvas to help with centreing
     const canvasContainer = document.createElement('div');
     canvasContainer.classList.add('canvas-container');
     imageContainer.appendChild(canvasContainer);
@@ -284,17 +284,17 @@ document.addEventListener('DOMContentLoaded', () => {
         stopLoadingText(); // Stop text cycling
         console.log("Canvas is ready with the image scaled to 2000x1157.");
         
-        // Extract dominant color and update button
+        // Extract dominant colour and update button
         try {
             // ColorThief needs the image to be fully loaded and CORS compliant
             if (img.complete) {
-                const dominantColor = colorThief.getColor(img);
-                console.log("Dominant Color Extracted:", dominantColor);
-                const rgbString = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+                const dominantColour = colorThief.getColor(img);
+                console.log("Dominant Colour Extracted:", dominantColour);
+                const rgbString = `rgb(${dominantColour[0]}, ${dominantColour[1]}, ${dominantColour[2]})`;
                 randomImageBtn.style.backgroundColor = rgbString;
                 
-                // Calculate contrast for text color (simple YIQ)
-                const yiq = ((dominantColor[0] * 299) + (dominantColor[1] * 587) + (dominantColor[2] * 114)) / 1000;
+                // Calculate contrast for text colour (simple YIQ)
+                const yiq = ((dominantColour[0] * 299) + (dominantColour[1] * 587) + (dominantColour[2] * 114)) / 1000;
                 randomImageBtn.style.color = (yiq >= 128) ? '#000' : '#fff';
             } else {
                 console.warn("Image not complete for ColorThief");
@@ -311,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     img.onerror = () => {
         console.error("Failed to load image. Check path and permissions.");
         loadingOverlay.classList.add('hidden'); // Hide on error too
+        stopLoadingText();
         alert("Failed to load image. Please try again.");
     };
 
@@ -321,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     randomImageBtn.addEventListener('click', () => {
         canvasReady = false;
         loadingOverlay.classList.remove('hidden'); // Show loading overlay
+        startLoadingText(); // Start text cycling
         const randomId = Math.floor(Math.random() * 1000);
         // Request exactly 2000x1157 from Picsum
         img.src = `https://picsum.photos/2000/1157?random=${randomId}`;
@@ -329,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     let oscillator = null;
-    let toneMode = 'color'; // 'color' or 'coordinate'
+    let toneMode = 'colour'; // 'colour' or 'coordinate'
 
     // --- Audio Context Handling ---
     const startAudio = async () => {
@@ -344,9 +346,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Event Listeners ---
-    btnColorMode.addEventListener('click', () => {
-        toneMode = 'color';
-        btnColorMode.classList.add('active');
+    btnColourMode.addEventListener('click', () => {
+        toneMode = 'colour';
+        btnColourMode.classList.add('active');
         btnCoordMode.classList.remove('active');
         playRandomSequence(false);
     });
@@ -354,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCoordMode.addEventListener('click', () => {
         toneMode = 'coordinate';
         btnCoordMode.classList.add('active');
-        btnColorMode.classList.remove('active');
+        btnColourMode.classList.remove('active');
         playRandomSequence(false);
     });
 
@@ -399,11 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const g = pixel[1];
         const b = pixel[2];
 
-        // Update Color Displays
+        // Update Colour Displays
         rgbDisplay.textContent = `(${r}, ${g}, ${b})`;
         const hex = rgbToHex(r, g, b);
         hexDisplay.textContent = hex;
-        colorSwatch.style.backgroundColor = hex;
+        colourSwatch.style.backgroundColor = hex;
 
         let freq;
 
@@ -413,8 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const octave = Math.round(6 - (y / canvas.height) * 4);
             const newNote = `${note}${octave}`;
             freq = Tonal.Note.freq(newNote);
-        } else { // 'color' mode
-            freq = colorToFrequency(r, g, b);
+        } else { // 'colour' mode
+            freq = colourToFrequency(r, g, b);
         }
 
         if (freq && oscillator) {
@@ -432,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hexDisplay.textContent = '#------';
         rgbDisplay.textContent = '(---, ---, ---)';
         coordsDisplay.textContent = '---, ---';
-        colorSwatch.style.backgroundColor = ''; // Revert to CSS default (var(--muted))
+        colourSwatch.style.backgroundColor = ''; // Revert to CSS default (var(--muted))
     });
 
     // --- Helper Functions ---
@@ -443,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join("").toUpperCase();
     }
 
-    function colorToFrequency(r, g, b) {
+    function colourToFrequency(r, g, b) {
         const brightness = (r + g + b) / 3;
         const minFreq = 100;
         const maxFreq = 1000;

@@ -13,7 +13,7 @@
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <!-- Tonal.js library for musical theory utilities -->
     <script src="https://cdn.jsdelivr.net/npm/tonal/browser/tonal.min.js"></script>
-    <!-- ColorThief for extracting dominant colors -->
+    <!-- ColorThief for extracting dominant colours -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
     <script src="script.js" defer></script>
 </head>
@@ -23,7 +23,7 @@
         <h1 class="glitch-title" data-text="IMAGE TONE PLAYER">IMAGE TONE PLAYER</h1>
         <div class="controls-container">
             <button id="randomImageBtn" class="control-btn">New Image</button>
-            <button id="randomToneBtn" class="control-btn secondary-btn">Randomize Signal</button>
+            <button id="randomToneBtn" class="control-btn secondary-btn">Randomise Signal</button>
             <div class="settings-wrapper">
                 <button id="settingsBtn" class="mode-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -64,7 +64,7 @@
                 </div>
             </div>
             <div class="mode-selector">
-                <button class="mode-btn active" id="btnColorMode" data-mode="color">Color</button>
+                <button class="mode-btn active" id="btnColourMode" data-mode="colour">Colour</button>
                 <button class="mode-btn" id="btnCoordMode" data-mode="coordinate">X/Y</button>
             </div>
         </div>
@@ -82,8 +82,8 @@
     <div class="info-panel">
         <div class="info-item">
             <span class="info-label">HEX:</span>
-            <div class="color-preview-container">
-                <div id="colorSwatch" class="color-swatch"></div>
+            <div class="colour-preview-container">
+                <div id="colourSwatch" class="colour-swatch"></div>
                 <span id="hexValue">#------</span>
             </div>
         </div>
