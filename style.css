@@ -59,14 +59,89 @@ h1 {
     display: flex;
     align-items: center;
     gap: calc(var(--spacing) * 4);
+    position: relative; /* For absolute positioning of settings panel */
+}
+
+.settings-wrapper {
+    position: relative;
+}
+
+#settingsBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+#settingsBtn:hover, #settingsBtn.active {
+    background-color: var(--muted);
+    color: var(--foreground);
+    border-color: var(--border);
+}
+
+.settings-panel {
+    position: absolute;
+    top: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px; /* Slightly wider */
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: calc(var(--spacing) * 5); /* Increased padding */
+    box-shadow: var(--shadow);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 5); /* Increased gap */
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.settings-panel.hidden {
+    display: none;
+}
+
+.setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.setting-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.setting-group select, .setting-group input {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    background-color: var(--background);
+    color: var(--foreground);
 }
 
 .mode-selector {
     display: flex;
     background-color: var(--muted);
-    padding: 2px;
+    padding: 1px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
+    align-items: center;
 }
 
 .mode-btn {
@@ -80,6 +155,7 @@ h1 {
     border-radius: calc(var(--radius) - 2px);
     transition: all 0.15s ease;
     font-family: inherit;
+    line-height: 1;
 }
 
 .mode-btn.active {
@@ -89,7 +165,7 @@ h1 {
 }
 
 .control-btn {
-    padding: 6px 16px;
+    padding: 7px 16px;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--primary-foreground);
@@ -99,10 +175,16 @@ h1 {
     cursor: pointer;
     transition: opacity 0.2s;
     font-family: inherit;
+    line-height: 1;
 }
 
 .control-btn:hover {
     opacity: 0.9;
+}
+
+.secondary-btn {
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
 }
 
 /* --- Main Image Area --- */
@@ -207,42 +289,133 @@ canvas {
 }
 
 /* --- Loading State --- */
+
 .loading-overlay {
+
     position: absolute;
+
     top: 0;
+
     left: 0;
+
     width: 100%;
+
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
+
+    background-color: rgba(0, 0, 0, 0.3); /* Match tone overlay */
+
+    backdrop-filter: blur(2px) grayscale(0.8); /* Match tone overlay */
+
     display: flex;
+
     flex-direction: column;
+
     justify-content: center;
+
     align-items: center;
+
     gap: var(--spacing);
+
     z-index: 20;
-    color: var(--foreground);
+
+    color: #fff; /* White text for dark overlay */
+
     font-weight: 500;
+
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+
 }
+
+
 
 .loading-overlay.hidden {
+
     display: none;
+
 }
 
-.spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid var(--muted);
-    border-top: 3px solid var(--primary);
+
+
+/* Old spinner removed, using .alien-spinner shared above */
+
+
+
+/* --- Tone Generation Overlay --- */
+
+.tone-overlay {
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.3);
+
+    backdrop-filter: blur(2px) grayscale(0.8);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 30; /* Above loading overlay */
+
+    cursor: wait;
+
+}
+
+
+
+.tone-overlay.hidden {
+
+    display: none;
+
+}
+
+
+
+.alien-spinner {
+
+    width: 60px;
+
+    height: 60px;
+
+    background: var(--accent);
+
+    mask: radial-gradient(farthest-side,#0000 calc(100% - 13px),#000 0);
+
+    -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 13px),#000 0);
+
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+
+    animation: alien-pulse 0.4s infinite linear alternate, alien-rotate 1s infinite linear;
+
+    box-shadow: 0 0 30px var(--accent);
+
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
 
-    100% {
-        transform: rotate(360deg);
-    }
+
+@keyframes alien-pulse {
+
+    0% { transform: scale(0.9); opacity: 0.7; filter: hue-rotate(0deg); }
+
+    100% { transform: scale(1.1); opacity: 1; filter: hue-rotate(180deg); }
+
+}
+
+
+
+@keyframes alien-rotate {
+
+    0% { transform: rotate(0deg); }
+
+    100% { transform: rotate(360deg); }
+
 }

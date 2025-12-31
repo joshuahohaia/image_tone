@@ -5,15 +5,163 @@ document.addEventListener('DOMContentLoaded', () => {
     const coordsDisplay = document.getElementById('coordsValue');
     const colorSwatch = document.getElementById('colorSwatch');
     const randomImageBtn = document.getElementById('randomImageBtn');
+    const randomToneBtn = document.getElementById('randomToneBtn');
     const btnColorMode = document.getElementById('btnColorMode');
     const btnCoordMode = document.getElementById('btnCoordMode');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const toneOverlay = document.getElementById('toneOverlay');
     const visualizerCanvas = document.getElementById('visualizer');
+    
+    // Settings Elements
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const volSlider = document.getElementById('volSlider');
+    const waveSelect = document.getElementById('waveSelect');
+    const scaleSelect = document.getElementById('scaleSelect');
+    const delaySlider = document.getElementById('delaySlider');
+    const reverbSlider = document.getElementById('reverbSlider');
 
-    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !btnColorMode || !btnCoordMode || !loadingOverlay || !visualizerCanvas) {
+    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !randomToneBtn || !btnColorMode || !btnCoordMode || !loadingOverlay || !toneOverlay || !visualizerCanvas || !settingsBtn || !settingsPanel || !volSlider || !waveSelect || !scaleSelect || !delaySlider || !reverbSlider) {
         console.error('Initialization failed: Could not find all required UI elements.');
         return;
     }
+
+    // --- Audio Effects ---
+    const feedbackDelay = new Tone.FeedbackDelay("8n", 0.5).toDestination();
+    feedbackDelay.wet.value = 0; // Start with no delay
+
+    const reverb = new Tone.Reverb({
+        decay: 1.5,
+        preDelay: 0.01,
+        wet: 0.5
+    }).toDestination();
+    // Reverb must be generated/initialized
+    reverb.generate();
+
+    // --- Random Tone Logic ---
+    async function playRandomNote() {
+        if (!canvasReady) return;
+        await startAudio();
+
+        const x = Math.floor(Math.random() * canvas.width);
+        const y = Math.floor(Math.random() * canvas.height);
+
+        let freq;
+        if (toneMode === 'coordinate') {
+            const noteIndex = Math.floor((x / canvas.width) * currentScale.length);
+            const note = currentScale[noteIndex % currentScale.length];
+            const octave = Math.round(6 - (y / canvas.height) * 4);
+            const newNote = `${note}${octave}`;
+            freq = Tonal.Note.freq(newNote);
+        } else {
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            freq = colorToFrequency(pixel[0], pixel[1], pixel[2]);
+        }
+
+        if (freq) {
+            const synth = new Tone.MonoSynth({
+                oscillator: { type: currentWaveform },
+                envelope: { attack: 0.1, decay: 0.2, sustain: 0.3, release: 0.8 }
+            })
+            .connect(waveform)
+            .connect(feedbackDelay)
+            .connect(reverb); 
+            
+            synth.volume.value = currentVolume;
+            synth.triggerAttackRelease(freq, "8n");
+            
+            // Dispose after playing to avoid memory leak
+            setTimeout(() => synth.dispose(), 2000);
+        }
+    }
+
+    async function playRandomSequence(useOverlay = true) {
+        if (useOverlay) toneOverlay.classList.remove('hidden'); // Show overlay to block interaction
+         // Play a short sequence
+         for (let i = 0; i < 4; i++) {
+            playRandomNote();
+            await new Promise(r => setTimeout(r, 200));
+        }
+        if (useOverlay) toneOverlay.classList.add('hidden'); // Hide overlay
+    }
+
+    function randomizeSettings() {
+        // Randomize Waveform
+        const waveforms = ['sine', 'triangle', 'square', 'sawtooth'];
+        currentWaveform = waveforms[Math.floor(Math.random() * waveforms.length)];
+        waveSelect.value = currentWaveform; // Update UI
+
+        // Randomize Scale
+        const scaleOptions = Array.from(scaleSelect.options).map(opt => opt.value);
+        const randomScaleName = scaleOptions[Math.floor(Math.random() * scaleOptions.length)];
+        scaleSelect.value = randomScaleName; // Update UI
+        
+        // Update logic for scale
+        if (randomScaleName === 'chromatic') {
+            currentScale = Tonal.Scale.get('C chromatic').notes;
+        } else {
+            currentScale = Tonal.Scale.get(randomScaleName).notes;
+        }
+        
+        // Note: Volume is explicitly excluded from randomization
+    }
+
+    randomToneBtn.addEventListener('click', () => {
+        randomizeSettings();
+        playRandomSequence(true);
+    });
+
+    // --- Settings Logic ---
+    let currentWaveform = 'sine';
+    let currentVolume = -10; // dB
+    let currentScale = Tonal.Scale.get('C major').notes;
+
+    settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent closing immediately if we click the button
+        settingsPanel.classList.toggle('hidden');
+        settingsBtn.classList.toggle('active');
+    });
+
+    // Close settings when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!settingsPanel.classList.contains('hidden') && !settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+            settingsPanel.classList.add('hidden');
+            settingsBtn.classList.remove('active');
+        }
+    });
+
+    delaySlider.addEventListener('input', (e) => {
+        feedbackDelay.wet.value = parseFloat(e.target.value);
+    });
+
+    reverbSlider.addEventListener('input', (e) => {
+        reverb.decay = parseFloat(e.target.value);
+        // Re-generate impulse response when decay changes (needed for Tone.Reverb)
+        reverb.generate(); 
+    });
+
+    volSlider.addEventListener('input', (e) => {
+        currentVolume = parseFloat(e.target.value);
+        if (oscillator) {
+            oscillator.volume.rampTo(currentVolume, 0.1);
+        }
+    });
+
+    waveSelect.addEventListener('change', (e) => {
+        currentWaveform = e.target.value;
+        if (oscillator) {
+            oscillator.type = currentWaveform;
+        }
+    });
+
+    scaleSelect.addEventListener('change', (e) => {
+        const scaleName = e.target.value;
+        if (scaleName === 'chromatic') {
+            currentScale = Tonal.Scale.get('C chromatic').notes;
+        } else {
+            currentScale = Tonal.Scale.get(scaleName).notes;
+        }
+    });
 
     // --- Visualizer Setup ---
     const visCtx = visualizerCanvas.getContext('2d');
@@ -28,7 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
         visCtx.beginPath();
         visCtx.lineJoin = 'round';
         visCtx.lineWidth = 2;
-        visCtx.strokeStyle = '#ef4444'; // Red accent color for heartbeat
+        // Use the primary theme color for the visualizer line
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        visCtx.strokeStyle = primaryColor || '#ef4444'; 
         
         if (buffer.length > 0) {
             const sliceWidth = visualizerCanvas.width / buffer.length;
@@ -85,6 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
         canvasReady = true;
         loadingOverlay.classList.add('hidden'); // Hide loading overlay
         console.log("Canvas is ready with the image scaled to 2000x1157.");
+        
+        // Play welcome tones (no overlay needed)
+        playRandomSequence(false);
     };
 
     img.onerror = () => {
@@ -107,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    const scale = Tonal.Scale.get('C major').notes;
     let oscillator = null;
     let toneMode = 'color'; // 'color' or 'coordinate'
 
@@ -128,12 +280,14 @@ document.addEventListener('DOMContentLoaded', () => {
         toneMode = 'color';
         btnColorMode.classList.add('active');
         btnCoordMode.classList.remove('active');
+        playRandomSequence(false);
     });
 
     btnCoordMode.addEventListener('click', () => {
         toneMode = 'coordinate';
         btnCoordMode.classList.add('active');
         btnColorMode.classList.remove('active');
+        playRandomSequence(false);
     });
 
     canvas.addEventListener('mouseenter', async () => {
@@ -141,9 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Tone.context.state !== 'running') return;
 
         if (!oscillator) {
-            oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 });
+            oscillator = new Tone.Oscillator({ type: currentWaveform, frequency: 440, volume: currentVolume });
             oscillator.connect(waveform); // Connect to visualizer
-            oscillator.toDestination(); // Connect to speakers
+            oscillator.connect(feedbackDelay);
+            oscillator.connect(reverb);
             oscillator.start();
         }
     });
@@ -155,9 +310,10 @@ document.addEventListener('DOMContentLoaded', () => {
             await startAudio();
             if (Tone.context.state !== 'running') return;
             if (!oscillator) {
-                oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 });
+                oscillator = new Tone.Oscillator({ type: currentWaveform, frequency: 440, volume: currentVolume });
                 oscillator.connect(waveform); // Connect to visualizer
-                oscillator.toDestination();
+                oscillator.connect(feedbackDelay); // Connect to delay
+                oscillator.connect(reverb); // Connect to reverb
                 oscillator.start();
             }
         }
@@ -184,8 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let freq;
 
         if (toneMode === 'coordinate') {
-            const noteIndex = Math.floor((x / canvas.width) * scale.length);
-            const note = scale[noteIndex % scale.length];
+            const noteIndex = Math.floor((x / canvas.width) * currentScale.length);
+            const note = currentScale[noteIndex % currentScale.length];
             const octave = Math.round(6 - (y / canvas.height) * 4);
             const newNote = `${note}${octave}`;
             freq = Tonal.Note.freq(newNote);
@@ -208,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hexDisplay.textContent = '#------';
         rgbDisplay.textContent = '(---, ---, ---)';
         coordsDisplay.textContent = '---, ---';
-        colorSwatch.style.backgroundColor = '#eee';
+        colorSwatch.style.backgroundColor = ''; // Revert to CSS default (var(--muted))
     });
 
     // --- Helper Functions ---

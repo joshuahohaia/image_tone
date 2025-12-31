@@ -21,6 +21,46 @@
         <h1>Image Tone Player</h1>
         <div class="controls-container">
             <button id="randomImageBtn" class="control-btn">New Image</button>
+            <button id="randomToneBtn" class="control-btn secondary-btn">Random Tone</button>
+            <div class="settings-wrapper">
+                <button id="settingsBtn" class="mode-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    Settings
+                </button>
+                <div id="settingsPanel" class="settings-panel hidden">
+                    <div class="setting-group">
+                        <label for="volSlider">Volume</label>
+                        <input type="range" id="volSlider" min="-30" max="0" value="-10">
+                    </div>
+                    <div class="setting-group">
+                        <label for="waveSelect">Tone</label>
+                        <select id="waveSelect">
+                            <option value="sine">Sine (Smooth)</option>
+                            <option value="triangle">Triangle (Soft)</option>
+                            <option value="square">Square (Retro)</option>
+                            <option value="sawtooth">Sawtooth (Sharp)</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="scaleSelect">Scale (X/Y)</label>
+                        <select id="scaleSelect">
+                            <option value="C major">C Major (Happy)</option>
+                            <option value="C minor">C Minor (Sad)</option>
+                            <option value="C pentatonic">Pentatonic (Simple)</option>
+                            <option value="C blues">Blues (Jazzy)</option>
+                            <option value="chromatic">Chromatic (All)</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="delaySlider">Echo / Delay</label>
+                        <input type="range" id="delaySlider" min="0" max="0.8" step="0.1" value="0">
+                    </div>
+                    <div class="setting-group">
+                        <label for="reverbSlider">Reverb (Space)</label>
+                        <input type="range" id="reverbSlider" min="0" max="10" step="0.5" value="1.5">
+                    </div>
+                </div>
+            </div>
             <div class="mode-selector">
                 <button class="mode-btn active" id="btnColorMode" data-mode="color">Color</button>
                 <button class="mode-btn" id="btnCoordMode" data-mode="coordinate">X/Y</button>
@@ -29,8 +69,11 @@
     </div>
     <div class="image-container">
         <div id="loadingOverlay" class="loading-overlay hidden">
-            <div class="spinner"></div>
+            <div class="alien-spinner"></div>
             <span>Loading Image...</span>
+        </div>
+        <div id="toneOverlay" class="tone-overlay hidden">
+            <div class="alien-spinner"></div>
         </div>
         <!-- The image and canvas will be loaded here by script.js -->
     </div>
