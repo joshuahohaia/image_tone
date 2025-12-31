@@ -8,11 +8,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnColorMode = document.getElementById('btnColorMode');
     const btnCoordMode = document.getElementById('btnCoordMode');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const visualizerCanvas = document.getElementById('visualizer');
 
-    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !btnColorMode || !btnCoordMode || !loadingOverlay) {
+    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !btnColorMode || !btnCoordMode || !loadingOverlay || !visualizerCanvas) {
         console.error('Initialization failed: Could not find all required UI elements.');
         return;
     }
+
+    // --- Visualizer Setup ---
+    const visCtx = visualizerCanvas.getContext('2d');
+    const waveform = new Tone.Waveform(64); // Small buffer for fast drawing
+    
+    function drawVisualizer() {
+        requestAnimationFrame(drawVisualizer);
+        
+        const buffer = waveform.getValue();
+        visCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        
+        visCtx.beginPath();
+        visCtx.lineJoin = 'round';
+        visCtx.lineWidth = 2;
+        visCtx.strokeStyle = '#ef4444'; // Red accent color for heartbeat
+        
+        if (buffer.length > 0) {
+            const sliceWidth = visualizerCanvas.width / buffer.length;
+            let x = 0;
+            
+            for (let i = 0; i < buffer.length; i++) {
+                const v = buffer[i]; 
+                // Map value (-1 to 1) to canvas height
+                const y = (v + 1) / 2 * visualizerCanvas.height;
+                
+                if (i === 0) {
+                    visCtx.moveTo(x, y);
+                } else {
+                    visCtx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+        }
+        
+        visCtx.stroke();
+    }
+    // Start the loop
+    drawVisualizer();
+
 
     // Create a canvas that will be used for interaction and pixel reading
     const canvas = document.createElement('canvas');
@@ -100,7 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Tone.context.state !== 'running') return;
 
         if (!oscillator) {
-            oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 }).toDestination();
+            oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 });
+            oscillator.connect(waveform); // Connect to visualizer
+            oscillator.toDestination(); // Connect to speakers
             oscillator.start();
         }
     });
@@ -112,7 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
             await startAudio();
             if (Tone.context.state !== 'running') return;
             if (!oscillator) {
-                oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 }).toDestination();
+                oscillator = new Tone.Oscillator({ type: 'sine', frequency: 440 });
+                oscillator.connect(waveform); // Connect to visualizer
+                oscillator.toDestination();
                 oscillator.start();
             }
         }
