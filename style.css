@@ -173,7 +173,7 @@ h1 {
     border: none;
     border-radius: var(--radius);
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, background-color 0.2s; /* Animate color change */
     font-family: inherit;
     line-height: 1;
 }

@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- UI Elements ---
     const imageContainer = document.querySelector('.image-container');
+    const loadingText = document.querySelector('.loading-text'); // Moved to top
     const hexDisplay = document.getElementById('hexValue');
     const rgbDisplay = document.getElementById('rgbValue');
     const coordsDisplay = document.getElementById('coordsValue');
@@ -37,6 +39,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }).toDestination();
     // Reverb must be generated/initialized
     reverb.generate();
+
+    // --- Loading Text Logic ---
+    let loadingInterval;
+    const loadingPhrases = [
+        "INITIALIZING SEQUENCE...",
+        "ANALYZING FREQUENCIES...",
+        "DECODING TRANSMISSION...",
+        "EXTRACTING HARMONICS...",
+        "CALIBRATING SENSORS..."
+    ];
+
+    function startLoadingText() {
+        let index = 0;
+        // Set initial text
+        updateText(loadingPhrases[0]);
+        
+        loadingInterval = setInterval(() => {
+            index = (index + 1) % loadingPhrases.length;
+            updateText(loadingPhrases[index]);
+        }, 800); // Change every 800ms
+    }
+
+    function stopLoadingText() {
+        clearInterval(loadingInterval);
+        updateText("INITIALIZING SEQUENCE..."); // Reset to default
+    }
+
+    function updateText(text) {
+        if (loadingText) {
+            loadingText.textContent = text;
+            loadingText.setAttribute('data-text', text); // For the glitch CSS effect
+        }
+    }
 
     // --- Random Tone Logic ---
     async function playRandomNote() {
@@ -221,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create an image element programmatically to set crossOrigin attribute
     const img = new Image();
     img.crossOrigin = "Anonymous"; // This is crucial to prevent canvas tainting
+    const colorThief = new ColorThief();
 
     img.onload = () => {
         // Draw the image scaled to fit the fixed canvas size
@@ -234,7 +270,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         canvasReady = true;
         loadingOverlay.classList.add('hidden'); // Hide loading overlay
+        stopLoadingText(); // Stop text cycling
         console.log("Canvas is ready with the image scaled to 2000x1157.");
+        
+        // Extract dominant color and update button
+        try {
+            // ColorThief needs the image to be fully loaded and CORS compliant
+            if (img.complete) {
+                const dominantColor = colorThief.getColor(img);
+                console.log("Dominant Color Extracted:", dominantColor);
+                const rgbString = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+                randomImageBtn.style.backgroundColor = rgbString;
+                
+                // Calculate contrast for text color (simple YIQ)
+                const yiq = ((dominantColor[0] * 299) + (dominantColor[1] * 587) + (dominantColor[2] * 114)) / 1000;
+                randomImageBtn.style.color = (yiq >= 128) ? '#000' : '#fff';
+            } else {
+                console.warn("Image not complete for ColorThief");
+            }
+            
+        } catch (e) {
+            console.warn("ColorThief failed (likely CORS on first load, or transparent image):", e);
+        }
         
         // Play welcome tones (no overlay needed)
         playRandomSequence(false);
