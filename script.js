@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomImageBtn = document.getElementById('randomImageBtn');
     const btnColorMode = document.getElementById('btnColorMode');
     const btnCoordMode = document.getElementById('btnCoordMode');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !btnColorMode || !btnCoordMode) {
+    if (!imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn || !btnColorMode || !btnCoordMode || !loadingOverlay) {
         console.error('Initialization failed: Could not find all required UI elements.');
         return;
     }
@@ -41,11 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         canvasReady = true;
+        loadingOverlay.classList.add('hidden'); // Hide loading overlay
         console.log("Canvas is ready with the image scaled to 2000x1157.");
     };
 
     img.onerror = () => {
         console.error("Failed to load image. Check path and permissions.");
+        loadingOverlay.classList.add('hidden'); // Hide on error too
+        alert("Failed to load image. Please try again.");
     };
 
     // Initial Image Load
@@ -54,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Random Image Logic ---
     randomImageBtn.addEventListener('click', () => {
         canvasReady = false;
+        loadingOverlay.classList.remove('hidden'); // Show loading overlay
         const randomId = Math.floor(Math.random() * 1000);
         // Request exactly 2000x1157 from Picsum
         img.src = `https://picsum.photos/2000/1157?random=${randomId}`;
