@@ -63,10 +63,32 @@ canvas {
     gap: 15px;
 }
 
+.control-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #67c0ec;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.control-btn:hover {
+    background-color: #5aaacc;
+}
+
+.control-btn:active {
+    transform: scale(0.96);
+}
+
 .switch {
     --secondary-container: #415863;
     --primary: #67c0ec;
-    font-size: 17px;
+    font-size: 10px;
     position: relative;
     display: inline-block;
     width: 3.7em;

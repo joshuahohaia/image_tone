@@ -6,14 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const rgbDisplay = document.getElementById('rgbValue');
     const coordsDisplay = document.getElementById('coordsValue');
     const colorSwatch = document.getElementById('colorSwatch');
+    const randomImageBtn = document.getElementById('randomImageBtn');
 
-    if (!modeSwitch || !switchLabel || !imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch) {
+    if (!modeSwitch || !switchLabel || !imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch || !randomImageBtn) {
         console.error('Initialization failed: Could not find all required UI elements.');
         return;
     }
 
     // Create a canvas that will be used for interaction and pixel reading
     const canvas = document.createElement('canvas');
+    canvas.width = 2000;
+    canvas.height = 1157;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     let canvasReady = false;
 
@@ -28,20 +31,34 @@ document.addEventListener('DOMContentLoaded', () => {
     img.crossOrigin = "Anonymous"; // This is crucial to prevent canvas tainting
 
     img.onload = () => {
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
+        // Draw the image scaled to fit the fixed canvas size
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvasContainer.appendChild(canvas); // Add canvas to the new container
+        
+        if (!canvasContainer.contains(canvas)) {
+            canvasContainer.innerHTML = '';
+            canvasContainer.appendChild(canvas);
+        }
+        
         canvasReady = true;
-        console.log("Canvas is ready with the image.");
+        console.log("Canvas is ready with the image scaled to 2000x1157.");
     };
 
     img.onerror = () => {
         console.error("Failed to load image. Check path and permissions.");
     };
 
-    // Set the src AFTER setting onload and crossOrigin
+    // Initial Image Load
     img.src = 'images/cosmic_tarantula.png';
+
+    // --- Random Image Logic ---
+    randomImageBtn.addEventListener('click', () => {
+        canvasReady = false;
+        const randomId = Math.floor(Math.random() * 1000);
+        // Request exactly 2000x1157 from Picsum
+        img.src = `https://picsum.photos/2000/1157?random=${randomId}`;
+    });
+
 
 
     const scale = Tonal.Scale.get('C major').notes;
