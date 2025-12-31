@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
         rgbDisplay: document.getElementById('rgbValue'),
         coordsDisplay: document.getElementById('coordsValue'),
         colourSwatch: document.getElementById('colourSwatch'),
+        uploadBtn: document.getElementById('uploadBtn'),
+        fileInput: document.getElementById('fileInput'),
         randomImageBtn: document.getElementById('randomImageBtn'),
         randomToneBtn: document.getElementById('randomToneBtn'),
         btnColourMode: document.getElementById('btnColourMode'),
@@ -138,10 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx: null,
         img: new Image(),
         colorThief: new ColorThief(),
+        isCustomUpload: false,
 
         init() {
-            this.canvas.width = CONFIG.canvasWidth;
-            this.canvas.height = CONFIG.canvasHeight;
             this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
             this.img.crossOrigin = "Anonymous";
 
@@ -155,13 +156,26 @@ document.addEventListener('DOMContentLoaded', () => {
             this.load('images/cosmic_tarantula.png');
         },
 
-        load(src) {
+        load(src, isUpload = false) {
             state.canvasReady = false;
+            this.isCustomUpload = isUpload;
             UI.loadingOverlay.classList.remove('hidden');
             this.img.src = src;
         },
 
         onLoad() {
+            if (this.isCustomUpload) {
+                // Resize canvas to match uploaded image dimensions (capped at 2000px)
+                const maxDim = 2000;
+                const scale = Math.min(1, maxDim / Math.max(this.img.width, this.img.height));
+                this.canvas.width = Math.round(this.img.width * scale);
+                this.canvas.height = Math.round(this.img.height * scale);
+            } else {
+                // Use default CONFIG dimensions for internal/random images
+                this.canvas.width = CONFIG.canvasWidth;
+                this.canvas.height = CONFIG.canvasHeight;
+            }
+
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.drawImage(this.img, 0, 0, this.canvas.width, this.canvas.height);
             
@@ -169,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             UI.loadingOverlay.classList.add('hidden');
             
             try {
-                if (this.img.complete) {
+                if (this.img.complete && this.img.width > 0) {
                     const dominantColour = this.colorThief.getColor(this.img);
                     const rgbString = `rgb(${dominantColour[0]}, ${dominantColour[1]}, ${dominantColour[2]})`;
                     UI.randomImageBtn.style.backgroundColor = rgbString;
@@ -241,6 +255,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Event Listeners ---
+    UI.uploadBtn.addEventListener('click', () => UI.fileInput.click());
+
+    UI.fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                ImageEngine.load(event.target.result, true);
+                UI.fileInput.value = ''; // Reset for same file re-upload
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     UI.randomImageBtn.addEventListener('click', () => {
         const randomId = Math.floor(Math.random() * 1000);
         ImageEngine.load(`https://picsum.photos/${CONFIG.canvasWidth}/${CONFIG.canvasHeight}?random=${randomId}`);
