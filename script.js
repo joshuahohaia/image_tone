@@ -2,8 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeSwitch = document.getElementById('modeSwitch');
     const switchLabel = document.querySelector('.switch-label');
     const imageContainer = document.querySelector('.image-container');
+    const hexDisplay = document.getElementById('hexValue');
+    const rgbDisplay = document.getElementById('rgbValue');
+    const coordsDisplay = document.getElementById('coordsValue');
+    const colorSwatch = document.getElementById('colorSwatch');
 
-    if (!modeSwitch || !switchLabel || !imageContainer) {
+    if (!modeSwitch || !switchLabel || !imageContainer || !hexDisplay || !rgbDisplay || !coordsDisplay || !colorSwatch) {
         console.error('Initialization failed: Could not find all required UI elements.');
         return;
     }
@@ -93,6 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = Math.floor(e.clientX - rect.left);
         const y = Math.floor(e.clientY - rect.top);
 
+        // Update Coordinate Display
+        coordsDisplay.textContent = `${x}, ${y}`;
+
+        // Get Pixel Data
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        const r = pixel[0];
+        const g = pixel[1];
+        const b = pixel[2];
+
+        // Update Color Displays
+        rgbDisplay.textContent = `(${r}, ${g}, ${b})`;
+        const hex = rgbToHex(r, g, b);
+        hexDisplay.textContent = hex;
+        colorSwatch.style.backgroundColor = hex;
+
         let freq;
 
         if (toneMode === 'coordinate') {
@@ -102,8 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newNote = `${note}${octave}`;
             freq = Tonal.Note.freq(newNote);
         } else { // 'color' mode
-            const pixel = ctx.getImageData(x, y, 1, 1).data;
-            freq = colorToFrequency(pixel[0], pixel[1], pixel[2]);
+            freq = colorToFrequency(r, g, b);
         }
 
         if (freq && oscillator) {
@@ -117,9 +135,21 @@ document.addEventListener('DOMContentLoaded', () => {
             oscillator.dispose();
             oscillator = null;
         }
+        // Reset Displays
+        hexDisplay.textContent = '#------';
+        rgbDisplay.textContent = '(---, ---, ---)';
+        coordsDisplay.textContent = '---, ---';
+        colorSwatch.style.backgroundColor = '#eee';
     });
 
     // --- Helper Functions ---
+    function rgbToHex(r, g, b) {
+        return "#" + [r, g, b].map(x => {
+            const hex = x.toString(16);
+            return hex.length === 1 ? "0" + hex : hex;
+        }).join("").toUpperCase();
+    }
+
     function colorToFrequency(r, g, b) {
         const brightness = (r + g + b) / 3;
         const minFreq = 100;

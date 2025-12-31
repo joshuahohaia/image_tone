@@ -14,45 +14,45 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between; 
+    justify-content: space-between;
     width: 90vw;
     max-width: 800px;
     margin-bottom: 20px;
 }
 
 h1 {
-    margin: 0; 
+    margin: 0;
     font-size: 1.5em;
 }
 
 .image-container {
     border: 2px solid #333;
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-    overflow: hidden; 
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 800px; 
+    max-width: 800px;
     max-height: 600px;
-    width: 90vw; 
-    height: auto; 
+    width: 90vw;
+    height: auto;
 }
 
 .canvas-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%; 
-    height: 100%; 
+    width: 100%;
+    height: 100%;
 }
 
 canvas {
     display: block;
-    max-width: 100%; 
-    max-height: 100%; 
-    width: auto; 
-    height: auto; 
-    cursor: crosshair; 
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    cursor: crosshair;
 }
 
 .controls-container {
@@ -109,19 +109,19 @@ canvas {
     transition: 0.4s;
 }
 
-.input:checked + .slider::before {
+.input:checked+.slider::before {
     background-color: var(--primary);
 }
 
-.input:checked + .slider {
+.input:checked+.slider {
     background-color: var(--secondary-container);
 }
 
-.input:focus + .slider {
+.input:focus+.slider {
     box-shadow: 0 0 1px var(--secondary-container);
 }
 
-.input:checked + .slider:before {
+.input:checked+.slider:before {
     transform: translateX(1.9em);
 }
 
@@ -131,4 +131,53 @@ canvas {
     color: #333;
     min-width: 120px;
     text-align: left;
+}
+
+.info-panel {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+    padding: 15px 25px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    border: 1px solid #ddd;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.info-label {
+    font-size: 0.8em;
+    color: #888;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.color-preview-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #eee;
+}
+
+#hexValue,
+#rgbValue,
+#coordsValue {
+    font-size: 1.1em;
+    color: #222;
 }
