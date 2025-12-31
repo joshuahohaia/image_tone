@@ -337,51 +337,25 @@ canvas {
     display: none;
 }
 
-.loader-content {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.alien-core {
-    width: 40px;
-    height: 40px;
+.alien-spinner {
+    width: 60px;
+    height: 60px;
     background: var(--accent);
-    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    box-shadow: 0 0 20px var(--accent), inset 0 0 10px rgba(255,255,255,0.5);
-    animation: morph 3s linear infinite alternate, pulse-core 2s ease-in-out infinite;
-    z-index: 2;
-}
-
-.alien-orbit {
-    position: absolute;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    mask: radial-gradient(farthest-side,#0000 calc(100% - 13px),#000 0);
+    -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 13px),#000 0);
     border-radius: 50%;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    animation: alien-pulse 0.4s infinite linear alternate, alien-rotate 1s infinite linear;
+    box-shadow: 0 0 30px var(--accent);
 }
 
-.orbit-1 {
-    width: 100%;
-    height: 100%;
-    border-top: 2px solid var(--primary);
-    animation: spin-orbit 2s linear infinite;
+@keyframes alien-pulse {
+    0% { transform: scale(0.9); opacity: 0.7; filter: hue-rotate(0deg); }
+    100% { transform: scale(1.1); opacity: 1; filter: hue-rotate(180deg); }
 }
 
-.orbit-2 {
-    width: 80%;
-    height: 80%;
-    border-right: 2px solid var(--secondary-foreground);
-    animation: spin-orbit 3s linear infinite reverse;
-}
-
-.orbit-3 {
-    width: 120%;
-    height: 60%;
-    border: 1px dashed var(--muted-foreground);
-    animation: spin-3d 4s linear infinite;
+@keyframes alien-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .loading-text {
@@ -405,25 +379,6 @@ canvas {
     overflow: hidden;
     clip: rect(0, 900px, 0, 0);
     animation: noise-anim-2 3s infinite linear alternate-reverse;
-}
-
-@keyframes morph {
-    0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-    100% { border-radius: 40% 60%; }
-}
-
-@keyframes pulse-core {
-    0% { transform: scale(0.95); opacity: 0.8; }
-    100% { transform: scale(1.1); opacity: 1; }
-}
-
-@keyframes spin-orbit {
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes spin-3d {
-    0% { transform: rotate(0deg) rotateX(60deg) rotateY(0deg); }
-    100% { transform: rotate(360deg) rotateX(60deg) rotateY(360deg); }
 }
 
 @keyframes noise-anim-2 {
